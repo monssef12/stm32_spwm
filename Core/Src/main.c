@@ -52,11 +52,9 @@ TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
 
-UART_HandleTypeDef huart1;
-
 /* USER CODE BEGIN PV */
 
-uint16_t fre = 5;
+
 uint16_t sine_LUT[128] = {799.000000 ,838.000000 ,877.000000 ,916.000000 ,955.000000 ,993.000000 ,1031.000000 ,1068.000000 ,1105.000000 ,1141.000000 ,1176.000000 ,1210.000000 ,1243.000000 ,1275.000000 ,1306.000000 ,1336.000000 ,1364.000000 ,1391.000000 ,1417.000000 ,1441.000000 ,1464.000000 ,1485.000000 ,1504.000000 ,1522.000000 ,1537.000000 ,1552.000000 ,1564.000000 ,1574.000000 ,1583.000000 ,1590.000000 ,1595.000000 ,1598.000000 ,1598.000000 ,1598.000000 ,1595.000000 ,1590.000000 ,1583.000000 ,1575.000000 ,1564.000000 ,1552.000000 ,1538.000000 ,1522.000000 ,1504.000000 ,1485.000000 ,1464.000000 ,1442.000000 ,1418.000000 ,1392.000000 ,1365.000000 ,1337.000000 ,1307.000000 ,1276.000000 ,1244.000000 ,1211.000000 ,1177.000000 ,1142.000000 ,1106.000000 ,1069.000000 ,1032.000000 ,994.000000 ,956.000000 ,918.000000 ,879.000000 ,839.000000 ,800.000000 ,761.000000 ,722.000000 ,683.000000 ,644.000000 ,606.000000 ,568.000000 ,531.000000 ,494.000000 ,458.000000 ,423.000000 ,389.000000 ,356.000000 ,324.000000 ,293.000000 ,263.000000 ,235.000000 ,208.000000 ,182.000000 ,158.000000 ,135.000000 ,114.000000 ,95.000000 ,77.000000 ,61.000000 ,47.000000 ,34.000000 ,24.000000 ,15.000000 ,8.000000 ,4.000000 ,1.000000 ,0.000000 ,0.000000 ,3.000000 ,8.000000 ,14.000000 ,23.000000 ,33.000000 ,46.000000 ,60.000000 ,75.000000 ,93.000000 ,112.000000 ,133.000000 ,156.000000 ,180.000000 ,205.000000 ,232.000000 ,260.000000 ,290.000000 ,321.000000 ,353.000000 ,386.000000 ,420.000000 ,455.000000 ,491.000000 ,527.000000 ,565.000000 ,602.000000 ,641.000000 ,679.000000 ,718.000000 ,757.000000}; // Sine wave LUT
 static uint16_t lut_index = 0;
 /* USER CODE END PV */
@@ -69,7 +67,6 @@ static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_ADC1_Init(void);
-static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -113,7 +110,6 @@ int main(void)
   MX_TIM3_Init();
   MX_TIM4_Init();
   MX_ADC1_Init();
-  MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
 
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
@@ -133,7 +129,7 @@ int main(void)
     /* USER CODE BEGIN 3 */
   HAL_ADC_Start(&hadc1);
   HAL_ADC_PollForConversion(&hadc1, 20);
-  int val = HAL_ADC_GetValue(&hadc1);
+  int val = HAL_ADC_GetValue(&hadc1); // read the ADC value
   __HAL_TIM_SET_AUTORELOAD(&htim4, (16000000/(scalePotentiometer(val)*128))-1); // scale the value of the ADC and change the TIM4 ARR with the corresponding value with a timer clock frequency set to 16MHZ
   }
   /* USER CODE END 3 */
@@ -407,7 +403,7 @@ static void MX_TIM3_Init(void)
   }
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
   sConfigOC.Pulse = 0;
-  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_LOW;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
   if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
   {
@@ -466,39 +462,6 @@ static void MX_TIM4_Init(void)
 }
 
 /**
-  * @brief USART1 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_USART1_UART_Init(void)
-{
-
-  /* USER CODE BEGIN USART1_Init 0 */
-
-  /* USER CODE END USART1_Init 0 */
-
-  /* USER CODE BEGIN USART1_Init 1 */
-
-  /* USER CODE END USART1_Init 1 */
-  huart1.Instance = USART1;
-  huart1.Init.BaudRate = 115200;
-  huart1.Init.WordLength = UART_WORDLENGTH_8B;
-  huart1.Init.StopBits = UART_STOPBITS_1;
-  huart1.Init.Parity = UART_PARITY_NONE;
-  huart1.Init.Mode = UART_MODE_TX_RX;
-  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
-  if (HAL_UART_Init(&huart1) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN USART1_Init 2 */
-
-  /* USER CODE END USART1_Init 2 */
-
-}
-
-/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
@@ -516,9 +479,11 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+// interrupt handler
+// updtaing the PWMs duty cycles
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
-    if (htim->Instance == TIM4) { // Check if Timer 2 caused the interrupt
+    if (htim->Instance == TIM4) { // Check if Timer 4 caused the interrupt
         uint16_t phase_A = sine_LUT[lut_index];
         uint16_t phase_B = sine_LUT[(lut_index + LUT_SIZE / 3) % LUT_SIZE];
         uint16_t phase_C = sine_LUT[(lut_index + 2 * LUT_SIZE / 3) % LUT_SIZE];
@@ -539,7 +504,7 @@ int scalePotentiometer(int potValue) {
     if (potValue < POT_MIN) potValue = POT_MIN;
     if (potValue > POT_MAX) potValue = POT_MAX;
 
-    // scaling from [0, 4095] -> [1, 50hz]
+    // scaling from [2630, 4095] -> [1, 50hz]
     return (int)(FREQ_MIN + ((float)(potValue - POT_MIN) * (FREQ_MAX - FREQ_MIN) / (POT_MAX - POT_MIN)));
 }
 
