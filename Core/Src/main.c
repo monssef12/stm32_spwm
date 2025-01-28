@@ -120,8 +120,6 @@ int main(void)
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
 
-
-
   HAL_TIM_Base_Start_IT(&htim4);
   HAL_ADC_Start_IT(&hadc1);
   /* USER CODE END 2 */
@@ -133,11 +131,10 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  HAL_ADC_Start(&hadc1);
-	  HAL_ADC_PollForConversion(&hadc1, 20);
-	  int val = HAL_ADC_GetValue(&hadc1);
-	  __HAL_TIM_SET_AUTORELOAD(&htim4, (16000000/(scalePotentiometer(val)*128))-1);
-
+  HAL_ADC_Start(&hadc1);
+  HAL_ADC_PollForConversion(&hadc1, 20);
+  int val = HAL_ADC_GetValue(&hadc1);
+  __HAL_TIM_SET_AUTORELOAD(&htim4, (16000000/(scalePotentiometer(val)*128))-1); // scale the value of the ADC and change the TIM4 ARR with the corresponding value with a timer clock frequency set to 16MHZ
   }
   /* USER CODE END 3 */
 }
@@ -542,7 +539,7 @@ int scalePotentiometer(int potValue) {
     if (potValue < POT_MIN) potValue = POT_MIN;
     if (potValue > POT_MAX) potValue = POT_MAX;
 
-    // scaling
+    // scaling from [0, 4095] -> [1, 50hz]
     return (int)(FREQ_MIN + ((float)(potValue - POT_MIN) * (FREQ_MAX - FREQ_MIN) / (POT_MAX - POT_MIN)));
 }
 
