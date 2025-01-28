@@ -1,23 +1,4 @@
-# Ignore build files
-build/
-Debug/
-Release/
 
-# Ignore IDE files
-*.launch
-*.settings/
-
-# Ignore binaries and object files
-*.bin
-*.elf
-*.hex
-*.o
-*.d
-*.map
-
-# Ignore logs and temp files
-*.log
-*.swp
 
 # Ignore Git metadata
 .git/
