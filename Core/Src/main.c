@@ -116,18 +116,18 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
 
-
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
 
-  HAL_TIM_Base_Start_IT(&htim4);
 
+
+  HAL_TIM_Base_Start_IT(&htim4);
+  HAL_ADC_Start_IT(&hadc1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  char uart_buffer[50];
   while (1)
   {
     /* USER CODE END WHILE */
@@ -138,10 +138,6 @@ int main(void)
 	  int val = HAL_ADC_GetValue(&hadc1);
 	  __HAL_TIM_SET_AUTORELOAD(&htim4, (16000000/(scalePotentiometer(val)*128))-1);
 
-      sprintf(uart_buffer, "the frequency is : %d Hz\n\r", scalePotentiometer(val));
-
-      // Transmit the formatted message via UART
-      HAL_UART_Transmit(&huart1, (uint8_t *)uart_buffer, strlen(uart_buffer), 100);
   }
   /* USER CODE END 3 */
 }
@@ -216,7 +212,7 @@ static void MX_ADC1_Init(void)
   hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV2;
   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
   hadc1.Init.ScanConvMode = DISABLE;
-  hadc1.Init.ContinuousConvMode = DISABLE;
+  hadc1.Init.ContinuousConvMode = ENABLE;
   hadc1.Init.DiscontinuousConvMode = DISABLE;
   hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
@@ -529,26 +525,26 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
         uint16_t phase_A = sine_LUT[lut_index];
         uint16_t phase_B = sine_LUT[(lut_index + LUT_SIZE / 3) % LUT_SIZE];
         uint16_t phase_C = sine_LUT[(lut_index + 2 * LUT_SIZE / 3) % LUT_SIZE];
-
         // Set PWM duty cycles for each phase
         __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, phase_A);
         __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, phase_B);
         __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, phase_C);
 
-        // Increment the LUT index, and wrap around if needed
+
+        // Increment the LUT index
         lut_index = (lut_index + 1) % LUT_SIZE;
+
     }
 }
 
 int scalePotentiometer(int potValue) {
-    // Ensure the value is within bounds
+    // the value is within bounds
     if (potValue < POT_MIN) potValue = POT_MIN;
     if (potValue > POT_MAX) potValue = POT_MAX;
 
-    // Perform linear scaling
+    // scaling
     return (int)(FREQ_MIN + ((float)(potValue - POT_MIN) * (FREQ_MAX - FREQ_MIN) / (POT_MAX - POT_MIN)));
 }
-
 
 
 /* USER CODE END 4 */
