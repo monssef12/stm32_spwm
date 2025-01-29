@@ -83,22 +83,26 @@ So i had to set another timer with interruption, its interrupt handler will be r
 If we want to have an output signal with 50 hz (which is a typical value in AC lines frequencies) then the updating frequency will be 128*50 = 6400 Hz, based on that we set the timer ARR.  
 The input frequency will be determined using an ADC, which reads the analog signal from a potentiometer to set the desired SPWM frequency.
 
-- Those are the main part of my code: 
+- Those are the main parts of my code: 
 - **Initialization:**
   - All timers, ADC, and peripherals are configured during initialization.
   - PWM signals are started on TIM1, TIM2, and TIM3.
 
-- **SPWM Generation:**
-  - TIM1, TIM2, and TIM3 are set to different phase offsets by manipulating their compare registers with values derived from the LUT.
-  - LUT values determine the duty cycle of each PWM channel.
-
-- **Frequency Scaling:**
-  - The ADC input scales the frequency by adjusting TIM4's Auto-Reload Register (ARR).
+- **ADC Reading and Frequency Scaling:**
+  - The ADC reads the value from a potentiometer (or another analog source), which is then scaled to determine the desired frequency.
+  - The ADC value is used to adjust the Auto-Reload Register (ARR) of TIM4, thereby controlling the frequency of the SPWM.
   - The formula `ARR = (16 MHz / (Frequency × LUT_Size)) - 1` ensures that LUT updates match the desired SPWM frequency.
+  
+- **Interrupt Handling (TIM4):**
+  - The TIM4 interrupt handler updates the Compare Capture Registers (CCRs) of TIM1, TIM2, and TIM3.
+  - The CCR values are modified to introduce phase offsets between the three timers, enabling three-phase SPWM signal generation.
+  - These phase offsets are determined using the LUT values, ensuring that the PWM signals on each timer are synchronized with the appropriate phase shifts.
 
-- **Interrupt Handling:**
-  - TIM4 interrupt updates the LUT index to cycle through sine wave samples.
-  - The index resets after completing one full sine wave cycle.
+- **SPWM Generation (TIM1, TIM2, TIM3):**
+  - TIM1, TIM2, and TIM3 generate the SPWM signals based on the updated CCR values from the interrupt handler.
+  - The phase offsets on each timer allow for the generation of three distinct, evenly spaced SPWM signals.
+  - These signals are used to drive the output, with the duty cycle of each signal determined by the LUT values.
+
 
 
 
