@@ -6,6 +6,7 @@ First we have to make sure that we understand the normal PWM that we usually use
 
 Let’s take an example:
 We have an input voltage source 12V with a switch like mosfet in series,  they are in series with the output load that can be a motor but we will keep it a simple resistor, this is a typical ideal circuit that can be controlled by pwm to drive the input voltage to the output with the desired percentage. We will use two different values of the duty cycle with a frequency set to 50 Hz.
+<!-- LinkedIn should ignore this -->
 <div align="center">
 <img src="images/Screenshot_(665).png" width="500">
 </div>
