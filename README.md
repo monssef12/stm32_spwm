@@ -1,5 +1,5 @@
 
-**The project is an implementation of SPWM for three phase induction motor drive (open loop), using the STM32f401RETX and this documentation is a guide to understand the concept and how i implemented it.**
+**The project is an implementation of SPWM for three phase induction motor drive (open loop), using the STM32f401RETX and stm32cubeide, this documentation is a guide to understand the concept and how i implemented it.**
 # Guide to understand SPWM
 ## Introduction to PWM:
 First we have to make sure that we understand the normal PWM that we usually use to drive a DC motor or to control the brightness of an LED. The PWM is a periodic square numerical signal, it can be in two states ON (5V or 3.3V) and OFF 0V, it has a frequency and a duty cycle which is the percentage of the period when the signal is ON.
