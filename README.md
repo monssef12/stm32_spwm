@@ -103,7 +103,7 @@ The input frequency will be determined using an ADC, which reads the analog sign
   - The phase offsets on each timer allow for the generation of three distinct, evenly spaced SPWM signals.
   - These signals are used to drive the output, with the duty cycle of each signal determined by the LUT values.
 
-
+I realy encourage you to watch this [youtube video](https://www.youtube.com/watch?v=AjN58ceQaF4) to understand jow to work with PWM on stm32 mcus using the stm32cubeide. 
 
 
 
